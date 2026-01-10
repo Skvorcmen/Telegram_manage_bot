@@ -23,30 +23,36 @@ from .tasks import publish_to_telegram
 
 @login_required
 def create_news(request):
-    """Создание новой новости"""
     if request.method == 'POST':
         form = NewsPostForm(request.POST, request.FILES)
+
         if form.is_valid():
+            # ВАЖНО: commit=False чтобы можно было обработать файл
             post = form.save(commit=False)
+
+            # Если есть файл, сохраняем его отдельно
+            if 'image' in request.FILES:
+                image_file = request.FILES['image']
+                post.image = image_file  # Django сам сохранит файл
+
+            # Теперь сохраняем
             post.save()
 
-            # Если нужно сразу публиковать
+            # Форма сохранит ManyToMany связи если они есть
+            form.save_m2m()
+
+            # Публикация
             if 'publish_now' in request.POST:
                 post.is_published = True
                 post.published_at = timezone.now()
                 post.save()
                 publish_to_telegram(post)
 
-            # ВАЖНО: всегда возвращаем redirect после успешной обработки POST
             return redirect('news_list')
-        else:
-            # Если форма невалидна, показываем ее снова с ошибками
-            return render(request, 'news/create_news.html', {'form': form})
     else:
-        # GET запрос - показываем пустую форму
         form = NewsPostForm()
-        return render(request, 'news/create_news.html', {'form': form})
 
+    return render(request, 'news/create_news.html', {'form': form})
 
 @login_required
 def publish_news(request, post_id):
