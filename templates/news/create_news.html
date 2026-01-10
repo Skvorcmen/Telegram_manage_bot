@@ -1,14 +1,102 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
-<h1>Создание новости</h1>
+<div class="container mt-4">
+    <h1 class="mb-4">📝 Создание новости</h1>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" name="save_draft" class="btn btn-secondary">Сохранить черновик</button>
-    <button type="submit" name="publish_now" class="btn btn-primary">Опубликовать сейчас</button>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
 
-</form>
+        <!-- Основная информация -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📰 Основная информация</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">Заголовок новости:*</label>
+                        <input type="text" name="title" class="form-control" required
+                               placeholder="Введите заголовок новости">
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label class="form-label fw-bold">Текст новости:*</label>
+                        <textarea name="content" class="form-control" rows="6" required
+                                  placeholder="Текст, который увидят подписчики в Telegram..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Комментарий -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">📝 Внутренний комментарий</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">
+                        Комментарий/Заметки
+                        <small class="text-muted">(не публикуется в Telegram)</small>:
+                    </label>
+                    <textarea name="comment" class="form-control" rows="3"
+                              placeholder="Пример: 📅 Пост запланирован на 15:00, упоминание спортсмена Иванова"></textarea>
+                    <div class="form-text">
+                        Можно указать: дату постинга, особенности публикации, заметки редактора
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Медиа -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">🖼️ Медиа материалы</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Изображение -->
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Изображение:</label>
+                        <input type="file" name="image" class="form-control" accept="image/*">
+                        <div class="form-text">JPG, PNG, GIF</div>
+                    </div>
+
+                    <!-- Видео файл -->
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Видео файл:</label>
+                        <input type="file" name="video" class="form-control" accept="video/*">
+                        <div class="form-text">MP4, MOV, AVI (до 50MB)</div>
+                    </div>
+
+                    <!-- Видео ссылка -->
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label">Или ссылка на видео:</label>
+                        <input type="url" name="video_url" class="form-control"
+                               placeholder="https://youtube.com/watch?v=...">
+                        <div class="form-text">YouTube, Vimeo</div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning mt-3">
+                    <small>
+                        💡 <strong>Выберите только один вариант:</strong> изображение ИЛИ видео файл ИЛИ видео ссылка.<br>
+                        Если выбрано несколько, приоритет: видео файл → видео ссылка → изображение.
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки отправки -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button type="submit" name="save_draft" class="btn btn-secondary me-2">
+                💾 Сохранить черновик
+            </button>
+            <button type="submit" name="publish_now" class="btn btn-primary">
+                🚀 Опубликовать сейчас
+            </button>
+        </div>
+    </form>
+</div>
 {% endblock %}

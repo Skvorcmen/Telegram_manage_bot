@@ -1,37 +1,186 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Все новости</h1>
-<a href="{% url 'create_news' %}" class="btn btn-success mb-3">+ Создать новость</a>
-<table class="table">
-    <tr>
-        <th>Заголовок</th>
-        <th>Дата</th>
-        <th>Статус</th>
-        <th>Действия</th>
-    </tr>
-    {% for post in posts %}
-    <tr>
-        <td>{{ post.title }}</td>
-        <td>{{ post.created_at|date:"d.m.Y H:i" }}</td>
-        <td>
-            {% if post.is_published %}
-                <span class="badge bg-success">Опубликовано</span>
-            {% else %}
-                <span class="badge bg-warning">Черновик</span>
-            {% endif %}
-        </td>
-        <td>
-            {% if not post.is_published %}
-                <!-- Правильно должно быть: -->
-<a href="{% url 'publish_news' post.id %}" class="btn btn-primary">
-    📤 Опубликовать
-</a>
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<div class="container mt-4">
+    <h1 class="mb-4">📰 Список новостей</h1>
+
+
+    <!-- Статистика из view -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Всего новостей</h5>
+                    <p class="card-text display-6">{{ total_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Опубликовано</h5>
+                    <p class="card-text display-6">{{ published_count }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h5 class="card-title">Черновики</h5>
+                    <p class="card-text display-6">{{ draft_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица новостей -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Все новости</h5>
+            <a href="{% url 'create_news' %}" class="btn btn-success btn-sm">
+                ✨ Новая новость
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 5%">ID</th>
+                            <th style="width: 20%">Название</th>
+                            <th style="width: 10%">Медиа</th>
+                            <th style="width: 15%">Дата</th>
+                            <th style="width: 10%">Статус</th>
+                            <th style="width: 25%">Комментарий</th>
+                            <th style="width: 15%">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for post in posts %}
+                        <tr class="{% if post.is_published %}table-success{% else %}table-warning{% endif %}">
+                            <!-- ID -->
+                            <td><strong>#{{ post.id }}</strong></td>
+
+                            <!-- Название -->
+                            <td>
+                                <div class="fw-bold">{{ post.title|truncatechars:30 }}</div>
+                                <small class="text-muted">
+                                    {{ post.content|truncatechars:40|default:"Без текста" }}
+                                </small>
+                            </td>
+
+                            <!-- Медиа -->
+                            <td>
+                                {% if post.video %}
+                                    <span class="badge bg-danger">🎬 Видео</span>
+                                {% elif post.video_url %}
+                                    <span class="badge bg-warning text-dark">🔗 Ссылка</span>
+                                {% elif post.image %}
+                                    <span class="badge bg-info">📸 Фото</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">📝 Текст</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Дата -->
+                            <td>
+                                <div><small>Создано:</small></div>
+                                <div class="fw-bold">{{ post.created_at|date:"d.m.Y" }}</div>
+                                <div><small>{{ post.created_at|date:"H:i" }}</small></div>
+                                {% if post.published_at %}
+                                <div class="mt-1">
+                                    <small class="text-success">Опубликовано:</small><br>
+                                    <small>{{ post.published_at|date:"d.m.Y H:i" }}</small>
+                                </div>
+                                {% endif %}
+                            </td>
+
+                            <!-- Статус -->
+                            <td>
+                                {% if post.is_published %}
+                                    <span class="badge bg-success rounded-pill p-2">
+                                        ✅<br>Опубликовано
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning rounded-pill p-2">
+                                        📋<br>Черновик
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Комментарий -->
+                            <td>
+                                {% if post.comment %}
+                                    <div class="bg-light p-2 rounded" style="font-size: 0.85em;">
+                                        {{ post.comment|linebreaks|truncatechars:100 }}
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Действия -->
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    {% if not post.is_published %}
+                                    <a href="{% url 'publish_news' post.id %}"
+                                       class="btn btn-primary"
+                                       title="Опубликовать в Telegram">
+                                        📤
+                                    </a>
+                                    {% endif %}
+
+                                    <a href="/admin/news/newspost/{{ post.id }}/change/"
+                                       class="btn btn-outline-secondary"
+                                       target="_blank"
+                                       title="Редактировать">
+                                        ✏️
+                                    </a>
+
+                                    {% if post.is_published %}
+                                    <a href="https://t.me/swmnews"
+                                       class="btn btn-outline-success"
+                                       target="_blank"
+                                       title="Посмотреть в Telegram">
+                                        👁️
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="text-muted">
+                                    <h4>📭 Новостей пока нет</h4>
+                                    <p>Создайте первую новость!</p>
+                                    <a href="{% url 'create_news' %}" class="btn btn-success">
+                                        Создать первую новость
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+.badge {
+    font-size: 0.8em;
+}
+.table-success {
+    background-color: rgba(25, 135, 84, 0.05) !important;
+}
+.table-warning {
+    background-color: rgba(255, 193, 7, 0.05) !important;
+}
+</style>
 {% endblock %}
-
-

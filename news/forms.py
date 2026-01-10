@@ -4,19 +4,22 @@ from .models import NewsPost
 class NewsPostForm(forms.ModelForm):
     class Meta:
         model = NewsPost
-        fields = ['title', 'content']
+        fields = ['title', 'content', 'comment', 'image', 'video', 'video_url']
         widgets = {
-            'content': forms.Textarea(attrs={'rows': 10}),
+            'content': forms.Textarea(attrs={
+                'rows': 6,
+                'placeholder': 'Текст новости, который увидят подписчики...'
+            }),
+            'comment': forms.Textarea(attrs={
+                'rows': 3,
+                'placeholder': 'Внутренние заметки: дата постинга, особенности и т.д.'
+            }),
+            'video_url': forms.URLInput(attrs={
+                'placeholder': 'https://youtube.com/watch?v=...'
+            }),
         }
-
-
-
-# Можно добавить стили для поля изображения
-    image = forms.ImageField(
-        required=False,
-        widget=forms.ClearableFileInput(attrs={
-            'class': 'form-control',
-            'accept': 'image/*'
-        }),
-        label='Изображение'
-    )
+        help_texts = {
+            'comment': 'Не публикуется в Telegram. Для внутреннего использования.',
+            'video': 'Максимальный размер: 50MB. Форматы: MP4, MOV, AVI',
+            'video_url': 'Альтернатива: ссылка на YouTube или Vimeo',
+        }

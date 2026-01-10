@@ -80,4 +80,29 @@ def publish_news(request, post_id):
         print(f"❌ DEBUG: Новость с id={post_id} не найдена")
 
     return redirect('news_list')
+
+
+def news_list(request):
+    """Показать список всех новостей."""
+    posts = NewsPost.objects.all().order_by('-created_at')
+
+    # Рассчитываем статистику
+    total = posts.count()
+
+    # Способ 1: Используем QuerySet
+    published_count = NewsPost.objects.filter(is_published=True).count()
+    draft_count = NewsPost.objects.filter(is_published=False).count()
+
+    # Или Способ 2: Вручную (если posts уже получен)
+    # published_count = sum(1 for post in posts if post.is_published)
+    # draft_count = total - published_count
+
+    context = {
+        'posts': posts,
+        'total_count': total,
+        'published_count': published_count,
+        'draft_count': draft_count,
+    }
+
+    return render(request, 'news/news_list.html', context)
 # Create your views here.
