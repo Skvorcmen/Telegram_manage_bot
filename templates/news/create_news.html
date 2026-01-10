@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h1>Создание новости</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit" name="save_draft" class="btn btn-secondary">Сохранить черновик</button>
+    <button type="submit" name="publish_now" class="btn btn-primary">Опубликовать сейчас</button>
+</form>
+{% endblock %}
