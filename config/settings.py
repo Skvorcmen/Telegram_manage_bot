@@ -24,6 +24,8 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')  # Получите у @BotFather
+TELEGRAM_CHANNEL_ID = os.getenv('TELEGRAM_CHANNEL_ID')
 SECRET_KEY = os.getenv("SECRET_KEY")
     # 'django-insecure-#=e51f78f*f#tdjx!y17b!qg3mks3&n#ti_&26etot#yq_+@*k'
 

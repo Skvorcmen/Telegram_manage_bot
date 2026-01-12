@@ -4,10 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d5eb5c76-a969-4092-998f-7c93a197b6ec" name="Changes" comment="пофиксил отправку картинок в новости">
+    <list default="true" id="d5eb5c76-a969-4092-998f-7c93a197b6ec" name="Changes" comment="Remove .env file and add to .gitignore">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Plane.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Plane.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/news/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/news/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/news/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/news/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/news/tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/news/tasks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/news/create_news.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/news/create_news.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,14 +120,35 @@
       <option name="project" value="LOCAL" />
       <updated>1768047925665</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Remove .env file and add to .gitignore">
+      <option name="closed" value="true" />
+      <created>1768193164141</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1768193164141</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="created base strukture" />
     <MESSAGE value="созданы модели" />
     <MESSAGE value="создано веб приложение, подключено к тг боту плюс канал плюс группа" />
     <MESSAGE value="пофиксил отправку картинок в новости" />
-    <option name="LAST_COMMIT_MESSAGE" value="пофиксил отправку картинок в новости" />
+    <MESSAGE value="удалил .env из гита" />
+    <MESSAGE value="Remove .env file and add to .gitignore" />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove .env file and add to .gitignore" />
   </component>
 </project>

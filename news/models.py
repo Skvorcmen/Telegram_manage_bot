@@ -38,12 +38,26 @@ class NewsPost(models.Model):
         help_text="Или укажите ссылку на YouTube/Vimeo"
     )
 
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    # Документ
+    document = models.FileField(
+        upload_to='news_documents/',  # Убедитесь, что это та же папка
+        blank=True,
+        null=True,
+        verbose_name="Документ"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
     is_published = models.BooleanField(default=False, verbose_name="Опубликовано")
-    published_at = models.DateTimeField(blank=True, null=True, verbose_name="Дата публикации")
+    published_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата публикации")
+
+    def get_document_filename(self):
+        """Возвращает имя файла документа"""
+        if self.document:
+            return os.path.basename(self.document.name)
+        return None
 
     def __str__(self):
         return self.title
+
 
     class Meta:
         verbose_name = "Новость"
