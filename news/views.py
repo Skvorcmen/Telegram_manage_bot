@@ -19,6 +19,8 @@ from django.utils import timezone
 from .forms import NewsPostForm
 from .models import NewsPost
 from .tasks import publish_to_telegram
+from django.contrib.auth.decorators import login_required
+
 
 
 @login_required

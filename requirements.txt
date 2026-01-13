@@ -6,7 +6,7 @@ certifi==2026.1.4
 charset-normalizer==3.4.4
 crispy-bootstrap5==2025.6
 dj-database-url==3.1.0
-Django==4.2
+Django==4.2.26
 django-crispy-forms==2.5
 django-dynamic-formsets==0.0.8
 gunicorn==23.0.0
@@ -28,4 +28,4 @@ sqlparse==0.5.5
 tornado==6.1
 tzlocal==5.3.1
 urllib3==2.6.3
-whitenoise==6.11.0
+whitenoise==6.6.0

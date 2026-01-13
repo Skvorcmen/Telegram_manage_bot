@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: telegram-manage-bot
+    runtime: python
+    repo: https://github.com/Skvorcmen/Telegram_manage_bot
+    region: frankfurt
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      python config/manage.py collectstatic --noinput
+    startCommand: gunicorn wsgi:application
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+    autoDeploy: true

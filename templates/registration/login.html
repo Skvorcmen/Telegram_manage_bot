@@ -1,10 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <title>Login - Telegram Bot</title>
+    <style>
+        body { font-family: Arial; max-width: 400px; margin: 50px auto; padding: 20px; }
+        .form-group { margin: 15px 0; }
+        input { width: 100%; padding: 8px; margin: 5px 0; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; cursor: pointer; }
+        .error { color: red; }
+        .info { background: #f8f9fa; padding: 15px; margin: 20px 0; }
+    </style>
 </head>
 <body>
-$END$
+    <h2>🔐 Login</h2>
+
+    {% if form.errors %}
+    <div class="error">
+        <p>Invalid username or password.</p>
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Username:</label>
+            <input type="text" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label>Password:</label>
+            <input type="password" name="password" required>
+        </div>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <div class="info">
+        <h3>Default credentials:</h3>
+        <p><strong>Username:</strong> admin</p>
+        <p><strong>Password:</strong> admin123</p>
+        <p><small>Change after first login!</small></p>
+    </div>
 </body>
 </html>
