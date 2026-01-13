@@ -1,8 +1,9 @@
-# tasks.py
+# news/tasks.py
 import os
 import requests
 from django.conf import settings
 from django.core.files.storage import default_storage
+import tempfile
 
 
 def publish_to_telegram(post):
@@ -15,49 +16,46 @@ def publish_to_telegram(post):
     bot_token = settings.TELEGRAM_BOT_TOKEN
     chat_id = settings.TELEGRAM_CHANNEL_ID
 
-    if not bot_token or not chat_id:
-        print("❌ DEBUG: Токен бота или ID канала не настроены")
+    if not bot_token:
+        print("❌ DEBUG: TELEGRAM_BOT_TOKEN не установлен!")
+        print(f"❌ DEBUG: Проверьте переменные окружения на Render")
         return False
+
+    if not chat_id:
+        print("❌ DEBUG: TELEGRAM_CHANNEL_ID не установлен!")
+        print(f"❌ DEBUG: Проверьте переменные окружения на Render")
+        return False
+
+    print(f"🔧 DEBUG: Bot Token (первые 10 символов): {bot_token[:10]}...")
+    print(f"🔧 DEBUG: Channel ID: {chat_id}")
 
     try:
         # Формируем текст сообщения
         message_text = f"<b>{post.title}</b>\n\n{post.content}"
 
         # Если есть изображение
-        if post.image:
+        if post.image and post.image.name:
             print(f"📷 DEBUG: Отправка изображения: {post.image.name}")
-            return send_photo_with_caption(
-                bot_token,
-                chat_id,
-                post.image.path,
-                message_text
-            )
+            return send_telegram_photo(bot_token, chat_id, post.image, message_text)
 
         # Если есть документ
-        elif post.document:
+        elif post.document and post.document.name:
             print(f"📎 DEBUG: Отправка документа: {post.document.name}")
-            return send_document_with_caption(
-                bot_token,
-                chat_id,
-                post.document.path,
-                message_text
-            )
+            return send_telegram_document(bot_token, chat_id, post.document, message_text)
 
         # Если только текст
         else:
             print("📝 DEBUG: Отправка только текста")
-            return send_text_message(
-                bot_token,
-                chat_id,
-                message_text
-            )
+            return send_telegram_message(bot_token, chat_id, message_text)
 
     except Exception as e:
         print(f"❌ DEBUG: Ошибка при отправке: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
-def send_text_message(bot_token, chat_id, text, parse_mode='HTML'):
+def send_telegram_message(bot_token, chat_id, text, parse_mode='HTML'):
     """Отправляет текстовое сообщение"""
     try:
         url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
@@ -68,110 +66,111 @@ def send_text_message(bot_token, chat_id, text, parse_mode='HTML'):
             'disable_web_page_preview': True
         }
 
+        print(f"🔧 DEBUG: Отправка текста в Telegram...")
         response = requests.post(url, json=data, timeout=30)
         result = response.json()
 
         print(f"📡 DEBUG: Ответ Telegram (текст): {result}")
-        return result.get('ok', False)
+
+        if result.get('ok'):
+            print(f"✅ УСПЕХ: Сообщение отправлено в Telegram")
+            return True
+        else:
+            print(f"❌ ОШИБКА Telegram: {result.get('description')}")
+            return False
 
     except Exception as e:
-        print(f"❌ DEBUG: Ошибка отправки текста: {str(e)}")
+        print(f"❌ ОШИБКА сети: {str(e)}")
         return False
 
 
-def send_photo_with_caption(bot_token, chat_id, image_path, caption):
-    """Отправляет фото с подписью"""
+def send_telegram_photo(bot_token, chat_id, image_field, caption):
+    """Отправляет фото с подписью (работает с FileField)"""
     try:
-        # Проверяем существование файла
-        if not os.path.exists(image_path):
-            print(f"❌ DEBUG: Файл изображения не найден: {image_path}")
-            return False
+        # Создаем временный файл
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp_file:
+            # Копируем содержимое файла
+            for chunk in image_field.chunks():
+                tmp_file.write(chunk)
+            tmp_path = tmp_file.name
+
+        print(f"🔧 DEBUG: Временный файл создан: {tmp_path}")
 
         url = f'https://api.telegram.org/bot{bot_token}/sendPhoto'
 
-        with open(image_path, 'rb') as photo:
+        with open(tmp_path, 'rb') as photo:
             files = {'photo': photo}
             data = {
                 'chat_id': chat_id,
-                'caption': caption[:1024],  # Ограничение Telegram
+                'caption': caption[:1024],
                 'parse_mode': 'HTML'
             }
 
+            print(f"🔧 DEBUG: Отправка фото в Telegram...")
             response = requests.post(url, files=files, data=data, timeout=30)
             result = response.json()
 
-            print(f"📡 DEBUG: Ответ Telegram (фото): {result}")
-            return result.get('ok', False)
+        # Удаляем временный файл
+        os.unlink(tmp_path)
+
+        print(f"📡 DEBUG: Ответ Telegram (фото): {result}")
+
+        if result.get('ok'):
+            print(f"✅ УСПЕХ: Фото отправлено в Telegram")
+            return True
+        else:
+            print(f"❌ ОШИБКА Telegram: {result.get('description')}")
+            return False
 
     except Exception as e:
-        print(f"❌ DEBUG: Ошибка отправки фото: {str(e)}")
+        print(f"❌ ОШИБКА отправки фото: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
-def send_document_with_caption(bot_token, chat_id, document_path, caption):
-    """Отправляет документ с подписью"""
-    print(f"🔍 DEBUG: Путь к документу: {document_path}")
-    print(f"🔍 DEBUG: Файл существует: {os.path.exists(document_path)}")
-
+def send_telegram_document(bot_token, chat_id, document_field, caption):
+    """Отправляет документ с подписью (работает с FileField)"""
     try:
-        # Проверяем существование файла
-        if not os.path.exists(document_path):
-            print(f"❌ DEBUG: Файл документа не найден: {document_path}")
-            # Пробуем альтернативный путь через MEDIA_ROOT
-            alt_path = os.path.join(settings.MEDIA_ROOT, document_path)
-            if os.path.exists(alt_path):
-                document_path = alt_path
-                print(f"✅ DEBUG: Найден альтернативный путь: {document_path}")
-            else:
-                return False
+        # Создаем временный файл
+        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+            # Копируем содержимое файла
+            for chunk in document_field.chunks():
+                tmp_file.write(chunk)
+            tmp_path = tmp_file.name
 
-        # Проверяем размер файла
-        file_size = os.path.getsize(document_path)
-        print(f"📊 DEBUG: Размер файла: {file_size} байт ({file_size / 1024 / 1024:.2f} MB)")
-
-        # Telegram ограничение: 50 MB для документов
-        if file_size > 50 * 1024 * 1024:
-            print(f"❌ DEBUG: Файл слишком большой: {file_size / 1024 / 1024:.2f} MB")
-            return False
+        print(f"🔧 DEBUG: Временный файл создан: {tmp_path}")
+        print(f"🔧 DEBUG: Размер файла: {os.path.getsize(tmp_path)} байт")
 
         url = f'https://api.telegram.org/bot{bot_token}/sendDocument'
 
-        with open(document_path, 'rb') as document_file:
-            # Получаем имя файла
-            filename = os.path.basename(document_path)
-
-            # Важно: передаем кортеж (имя_файла, файл, mime_type)
-            files = {
-                'document': (filename, document_file)
-            }
-
+        with open(tmp_path, 'rb') as doc_file:
+            filename = os.path.basename(document_field.name)
+            files = {'document': (filename, doc_file)}
             data = {
                 'chat_id': chat_id,
-                'caption': caption[:1024],  # Ограничение Telegram
+                'caption': caption[:1024],
                 'parse_mode': 'HTML'
             }
 
-            print(f"📤 DEBUG: Отправка документа {filename} в Telegram...")
+            print(f"🔧 DEBUG: Отправка документа в Telegram...")
             response = requests.post(url, files=files, data=data, timeout=60)
             result = response.json()
 
-            print(f"📡 DEBUG: Полный ответ Telegram: {result}")
+        # Удаляем временный файл
+        os.unlink(tmp_path)
 
-            if result.get('ok'):
-                print(f"✅ DEBUG: Документ успешно отправлен")
-                return True
-            else:
-                print(f"❌ DEBUG: Ошибка Telegram API: {result.get('description')}")
-                return False
+        print(f"📡 DEBUG: Ответ Telegram (документ): {result}")
 
-    except FileNotFoundError as e:
-        print(f"❌ DEBUG: Файл не найден: {str(e)}")
-        return False
-    except requests.exceptions.RequestException as e:
-        print(f"❌ DEBUG: Ошибка сети: {str(e)}")
-        return False
+        if result.get('ok'):
+            print(f"✅ УСПЕХ: Документ отправлен в Telegram")
+            return True
+        else:
+            print(f"❌ ОШИБКА Telegram: {result.get('description')}")
+            return False
+
     except Exception as e:
-        print(f"❌ DEBUG: Неожиданная ошибка: {str(e)}")
+        print(f"❌ ОШИБКА отправки документа: {str(e)}")
         import traceback
         traceback.print_exc()
         return False

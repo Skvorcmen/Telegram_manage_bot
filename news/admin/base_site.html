@@ -1,0 +1,29 @@
+{% extends "admin/base.html" %}
+
+{% load static %}
+
+{% block title %}{{ title }} | Админ-панель{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <i class="fas fa-cogs"></i> Моя Админ-панель
+    </a>
+</h1>
+{% endblock %}
+
+{% block extrahead %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/admin-custom.css' %}">
+<script src="{% static 'js/admin-custom.js' %}"></script>
+<style>
+    /* Кастомные стили */
+    .admin-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    /* ... остальные стили из примера */
+</style>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

@@ -39,8 +39,9 @@ if not DEBUG:
     ALLOWED_HOSTS.extend(['.onrender.com', 'localhost', '127.0.0.1'])
 # Application definition
 
-TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
-TELEGRAM_CHANNEL_ID = os.environ.get('TELEGRAM_CHANNEL_ID')
+# Telegram settings
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+TELEGRAM_CHANNEL_ID = os.environ.get('TELEGRAM_CHANNEL_ID', '')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -140,7 +141,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Папка для статических файлов (CSS, JS)
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = [BASE_DIR / 'static']
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
